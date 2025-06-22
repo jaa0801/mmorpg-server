@@ -12,10 +12,11 @@ export class Player extends Schema {
   @type("string") imageWalkUp = "";
   @type("string") imageWalkDown = "";
 
-  // Optional: Add future properties
-  // @type("string") name = "";
-  // @type("number") hp = 100;
-  // @type("number") level = 1;
+  // Optional properties
+  @type("string") name = "";
+  @type("number") level = 1;
+  @type("number") hp = 100;
+  @type("string") class = "";
 }
 
 export class MyRoomState extends Schema {
