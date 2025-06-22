@@ -1,52 +1,54 @@
-import { Room, Client } from "@colyseus/core";
+import { Room, Client } from "colyseus";
 import { MyRoomState, Player } from "./schema/MyRoomState";
 
-export class MyRoom extends Room<MyRoomState> {
-  maxClients = 4;
+export class GameRoom extends Room<MyRoomState> {
+  maxClients = 16;
 
   onCreate(options: any) {
     this.setState(new MyRoomState());
 
-    // Handle movement message from client
     this.onMessage("move", (client, data) => {
       const player = this.state.players.get(client.sessionId);
       if (!player) return;
 
-      if (data.direction === "up") {
-        player.y -= 1;
-        player.animation = player.imageWalkUp;
-      } else if (data.direction === "down") {
-        player.y += 1;
-        player.animation = player.imageWalkDown;
-      } else if (data.direction === "left") {
-        player.x -= 1;
-        player.animation = player.imageWalkLeft;
-      } else if (data.direction === "right") {
-        player.x += 1;
-        player.animation = player.imageWalkRight;
-      }
+      const speed = 2;
+
+      // Update player position
+      player.x += data.dx * speed;
+      player.y += data.dy * speed;
+
+      // Update animation based on direction
+      if (data.dx > 0.5) player.animation = player.imageWalkRight;
+      else if (data.dx < -0.5) player.animation = player.imageWalkLeft;
+      else if (data.dy > 0.5) player.animation = player.imageWalkDown;
+      else if (data.dy < -0.5) player.animation = player.imageWalkUp;
+      else player.animation = player.imageIdleFront;
     });
   }
 
   onJoin(client: Client, options: any) {
-    console.log(client.sessionId, "joined!");
-    
+    console.log(client.sessionId, "joined", options);
+
+    const character = options.character;
     const player = new Player();
+
     player.x = 100;
     player.y = 100;
-    player.imageIdleFront = options.imageIdleFront;
-    player.imageWalkLeft = options.imageWalkLeft;
-    player.imageWalkRight = options.imageWalkRight;
-    player.imageWalkUp = options.imageWalkUp;
-    player.imageWalkDown = options.imageWalkDown;
-    player.animation = options.imageIdleFront;
+
+    // Set default animation and images from character data
+    player.animation = character.ImageURL_IdleFront;
+    player.imageIdleFront = character.ImageURL_IdleFront;
+    player.imageWalkLeft = character.ImageURL_Walk_Left;
+    player.imageWalkRight = character.ImageURL_Walk_Right;
+    player.imageWalkUp = character.ImageURL_Walk_Up || character.ImageURL_Walk_Right;
+    player.imageWalkDown = character.ImageURL_Walk_Down || character.ImageURL_Walk_Left;
 
     this.state.players.set(client.sessionId, player);
   }
 
-  onLeave(client: Client, consented: boolean) {
+  onLeave(client: Client) {
     this.state.players.delete(client.sessionId);
-    console.log(client.sessionId, "left!");
+    console.log(client.sessionId, "left");
   }
 
   onDispose() {

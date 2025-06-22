@@ -3,6 +3,7 @@ import { Schema, type, MapSchema } from "@colyseus/schema";
 export class Player extends Schema {
   @type("number") x = 100;
   @type("number") y = 100;
+
   @type("string") animation = "";
 
   @type("string") imageIdleFront = "";
@@ -10,6 +11,11 @@ export class Player extends Schema {
   @type("string") imageWalkRight = "";
   @type("string") imageWalkUp = "";
   @type("string") imageWalkDown = "";
+
+  // Optional: Add future properties
+  // @type("string") name = "";
+  // @type("number") hp = 100;
+  // @type("number") level = 1;
 }
 
 export class MyRoomState extends Schema {
