@@ -6,21 +6,22 @@ import cors from "cors";
 
 const app = express();
 
-// Enable CORS for Google Apps Script
+// ✅ Enable CORS for Google Apps Script or any origin
 app.use(cors({
-  origin: "*", // You can restrict to your Apps Script domain for security
+  origin: "*", // Optional: replace with your Apps Script origin for better security
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type"]
 }));
 
+// ✅ Handle preflight CORS requests
 app.options("*", cors());
 
 const server = createServer(app);
 const gameServer = new Server({ server });
 
-// Define your Colyseus room
+// ✅ Define the Colyseus room for your MMORPG
 gameServer.define("game_room", GameRoom);
 
-// Start listening on port 2567
+// ✅ Start listening on port 2567 (Render must detect this)
 gameServer.listen(2567);
 console.log("✅ Colyseus server with CORS enabled is running on port 2567");

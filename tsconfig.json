@@ -1,19 +1,12 @@
 {
   "compilerOptions": {
-    "outDir": "build",
-    "target": "ESNext",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "target": "ES6",
+    "module": "commonjs",
+    "outDir": "dist",
+    "rootDir": ".",
     "strict": true,
-    "allowJs": true,
-    "strictNullChecks": false,
     "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "useDefineForClassFields": false
+    "skipLibCheck": true
   },
-  "include": [
-    "src"
-  ]
+  "include": ["index.ts", "rooms/**/*.ts"]
 }
