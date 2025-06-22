@@ -7,7 +7,6 @@ export class GameRoom extends Room<MyRoomState> {
   onCreate(options: any) {
     this.setState(new MyRoomState());
 
-    // 🕹️ Handle player movement input
     this.onMessage("move", (client, data) => {
       const player = this.state.players.get(client.sessionId);
       if (!player) return;
@@ -15,67 +14,64 @@ export class GameRoom extends Room<MyRoomState> {
       const speed = 2;
 
       // Move player
-      player.x += data.dx * speed;
-      player.y += data.dy * speed;
+      player.PositionX += data.dx * speed;
+      player.PositionY += data.dy * speed;
 
       // Clamp within map bounds
-      player.x = Math.max(0, Math.min(player.x, 1000));
-      player.y = Math.max(0, Math.min(player.y, 1000));
+      player.PositionX = Math.max(0, Math.min(player.PositionX, 1000));
+      player.PositionY = Math.max(0, Math.min(player.PositionY, 1000));
 
-      // Choose animation based on direction
+      // Set appropriate animation
       if (data.dx > 0.5) {
-        player.animation = player.imageWalkRight;
+        player.animation = player.ImageURL_Walk_Right;
       } else if (data.dx < -0.5) {
-        player.animation = player.imageWalkLeft;
+        player.animation = player.ImageURL_Walk_Left;
       } else if (data.dy > 0.5) {
-        player.animation = player.imageWalkDown;
+        player.animation = player.ImageURL_Walk_Down;
       } else if (data.dy < -0.5) {
-        player.animation = player.imageWalkUp;
+        player.animation = player.ImageURL_Walk_Up;
       } else {
-        player.animation = player.imageIdleFront;
+        player.animation = player.ImageURL_IdleFront;
       }
     });
   }
 
   onJoin(client: Client, options: any) {
-    console.log(client.sessionId, "joined", options);
+    console.log("👤", client.sessionId, "joined", options);
 
     const character = options.character;
     const player = new Player();
 
-    // ✅ Set all values BEFORE adding to state
-    player.name = character.CharacterName || "Player";
-    player.x = Number(character.PositionX) * 20;
-    player.y = Number(character.PositionY) * 20;
+    // ✅ Match frontend naming
+    player.CharacterName = character.CharacterName || "Player";
+    player.PositionX = Number(character.PositionX) * 20;
+    player.PositionY = Number(character.PositionY) * 20;
 
-    // ✅ Assign animations
-    player.imageIdleFront = character.ImageURL_IdleFront;
-    player.imageWalkLeft = character.ImageURL_Walk_Left;
-    player.imageWalkRight = character.ImageURL_Walk_Right;
-    player.imageWalkUp = character.ImageURL_Walk_Up || character.ImageURL_Walk_Right;
-    player.imageWalkDown = character.ImageURL_Walk_Down || character.ImageURL_Walk_Left;
+    player.ImageURL_IdleFront = character.ImageURL_IdleFront;
+    player.ImageURL_Walk_Left = character.ImageURL_Walk_Left;
+    player.ImageURL_Walk_Right = character.ImageURL_Walk_Right;
+    player.ImageURL_Walk_Up = character.ImageURL_Walk_Up || character.ImageURL_Walk_Right;
+    player.ImageURL_Walk_Down = character.ImageURL_Walk_Down || character.ImageURL_Walk_Left;
 
-    // ✅ Set default animation
-    player.animation = player.imageIdleFront;
+    player.animation = player.ImageURL_IdleFront;
 
-    // ✅ Only now add to Colyseus state
     this.state.players.set(client.sessionId, player);
 
-    console.log("✅ Player initialized:", {
+    console.log("✅ Player added to state:", {
       sessionId: client.sessionId,
-      name: player.name,
-      x: player.x,
-      y: player.y,
+      CharacterName: player.CharacterName,
+      PositionX: player.PositionX,
+      PositionY: player.PositionY,
       animation: player.animation
     });
   }
 
   onLeave(client: Client) {
     this.state.players.delete(client.sessionId);
-    console.log(client.sessionId, "left");
+    console.log("👋", client.sessionId, "left");
   }
 
   onDispose() {
-    console.log("room", this.roomId, "disposing...");
+    console.log("🧹 Room", this.roomId, "disposing...");
   }
 }
