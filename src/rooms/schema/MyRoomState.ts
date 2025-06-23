@@ -11,6 +11,8 @@ export class Player extends Schema {
   @type("string") ImageURL_Walk_Right = "";
   @type("string") ImageURL_Walk_Up = "";
   @type("string") ImageURL_Walk_Down = "";
+
+  @type("string") Direction = ""; // ✅ New field to track movement direction (left/right/up/down/idle)
 }
 
 export class MyRoomState extends Schema {

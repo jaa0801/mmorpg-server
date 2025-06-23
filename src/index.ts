@@ -4,24 +4,31 @@ import { Server } from "colyseus";
 import { GameRoom } from "./rooms/GameRoom";
 import cors from "cors";
 
+// Create express app
 const app = express();
 
-// Enable CORS for Google Apps Script
+// ✅ Enable CORS so that browsers or Apps Script can connect
 app.use(cors({
-  origin: "*", // Optional: restrict to your Apps Script domain
+  origin: "*", // You can replace with your specific domain if needed
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type"]
 }));
 
+// Handle preflight requests
 app.options("*", cors());
 
+// Create HTTP server
 const server = createServer(app);
+
+// Create Colyseus server with HTTP server
 const gameServer = new Server({ server });
 
-// ✅ Define only one room: "game_room"
+// ✅ Define your game room
 gameServer.define("game_room", GameRoom);
 console.log("✅ Room defined: game_room");
 
-// Start the server
-gameServer.listen(2567);
-console.log("🚀 Colyseus server with CORS enabled is running on port 2567");
+// ✅ Start server
+const PORT = process.env.PORT || 2567;
+gameServer.listen(PORT);
+
+console.log(`🚀 Colyseus server with CORS enabled is running on port ${PORT}`);

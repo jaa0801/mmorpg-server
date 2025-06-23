@@ -7,32 +7,50 @@ export class GameRoom extends Room<MyRoomState> {
   onCreate(options: any) {
     this.setState(new MyRoomState());
 
+    // ✅ Handle incoming movement input
     this.onMessage("move", (client, data) => {
       const player = this.state.players.get(client.sessionId);
       if (!player) return;
 
       const speed = 2;
 
-      // Move player
+      // Apply movement
       player.PositionX += data.dx * speed;
       player.PositionY += data.dy * speed;
 
-      // Clamp within map bounds
+      // Clamp position within map bounds
       player.PositionX = Math.max(0, Math.min(player.PositionX, 1000));
       player.PositionY = Math.max(0, Math.min(player.PositionY, 1000));
 
-      // Set appropriate animation
+      // Determine direction and set animation
+      let direction = "idle";
+
       if (data.dx > 0.5) {
+        direction = "right";
         player.animation = player.ImageURL_Walk_Right;
       } else if (data.dx < -0.5) {
+        direction = "left";
         player.animation = player.ImageURL_Walk_Left;
       } else if (data.dy > 0.5) {
+        direction = "down";
         player.animation = player.ImageURL_Walk_Down;
       } else if (data.dy < -0.5) {
+        direction = "up";
         player.animation = player.ImageURL_Walk_Up;
       } else {
+        direction = "idle";
         player.animation = player.ImageURL_IdleFront;
       }
+
+      player.Direction = direction;
+
+      // Optional: broadcast to all clients (can be removed if you rely on .onChange only)
+      this.broadcast("move", {
+        sessionId: client.sessionId,
+        x: player.PositionX,
+        y: player.PositionY,
+        direction,
+      });
     });
   }
 
@@ -42,18 +60,19 @@ export class GameRoom extends Room<MyRoomState> {
     const character = options.character;
     const player = new Player();
 
-    // ✅ Match frontend naming
+    // ✅ Populate player schema from client
     player.CharacterName = character.CharacterName || "Player";
-    player.PositionX = Number(character.PositionX);
-    player.PositionY = Number(character.PositionY);
+    player.PositionX = Number(character.PositionX) || 100;
+    player.PositionY = Number(character.PositionY) || 100;
 
-    player.ImageURL_IdleFront = character.ImageURL_IdleFront;
-    player.ImageURL_Walk_Left = character.ImageURL_Walk_Left;
-    player.ImageURL_Walk_Right = character.ImageURL_Walk_Right;
-    player.ImageURL_Walk_Up = character.ImageURL_Walk_Up || character.ImageURL_Walk_Right;
-    player.ImageURL_Walk_Down = character.ImageURL_Walk_Down || character.ImageURL_Walk_Left;
+    player.ImageURL_IdleFront = character.ImageURL_IdleFront || "";
+    player.ImageURL_Walk_Left = character.ImageURL_Walk_Left || "";
+    player.ImageURL_Walk_Right = character.ImageURL_Walk_Right || "";
+    player.ImageURL_Walk_Up = character.ImageURL_Walk_Up || character.ImageURL_Walk_Right || "";
+    player.ImageURL_Walk_Down = character.ImageURL_Walk_Down || character.ImageURL_Walk_Left || "";
 
     player.animation = player.ImageURL_IdleFront;
+    player.Direction = "idle";
 
     this.state.players.set(client.sessionId, player);
 
