@@ -44,8 +44,8 @@ export class GameRoom extends Room<MyRoomState> {
 
     // ✅ Match frontend naming
     player.CharacterName = character.CharacterName || "Player";
-    player.PositionX = Number(character.PositionX) * 20;
-    player.PositionY = Number(character.PositionY) * 20;
+    player.PositionX = Number(character.PositionX);
+    player.PositionY = Number(character.PositionY);
 
     player.ImageURL_IdleFront = character.ImageURL_IdleFront;
     player.ImageURL_Walk_Left = character.ImageURL_Walk_Left;
