@@ -8,7 +8,7 @@ const app = express();
 
 // Enable CORS for Google Apps Script
 app.use(cors({
-  origin: "*", // Optional: tighten to your domain if needed
+  origin: "*", // Optional: restrict to your Apps Script domain
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type"]
 }));
@@ -18,11 +18,9 @@ app.options("*", cors());
 const server = createServer(app);
 const gameServer = new Server({ server });
 
-// ✅ Define multiple rooms for maps
-["map_1", "map_2"].forEach(roomName => {
-  gameServer.define(roomName, GameRoom);
-  console.log(`✅ Room defined: ${roomName}`);
-});
+// ✅ Define only one room: "game_room"
+gameServer.define("game_room", GameRoom);
+console.log("✅ Room defined: game_room");
 
 // Start the server
 gameServer.listen(2567);
